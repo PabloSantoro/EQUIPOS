@@ -1,6 +1,6 @@
 // Configuración base de la API
 const API_BASE_URL = import.meta.env.PROD 
-  ? '/equipos/api'  // En producción GEPRO, usar subdirectorio
+  ? '/api'  // En producción GEPRO subdominio, usar /api
   : 'http://localhost:3001/api';  // En desarrollo, usar localhost
 
 // Función helper para hacer requests

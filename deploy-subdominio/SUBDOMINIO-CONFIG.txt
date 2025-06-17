@@ -1,0 +1,44 @@
+🎯 CONFIGURACIÓN PARA SUBDOMINIO equipos.gepro.com.ar
+
+📍 Ruta del servidor: /domains/equipos.gepro.com.ar/public_html/
+
+🗄️ Base de datos (MISMA):
+- Host: 62.72.62.1
+- Puerto: 3306  
+- Base de datos: u302432817_gchkd
+- Usuario: u302432817_ILTEF
+- Contraseña: Puertas3489*
+
+🌐 URLs de producción:
+- Frontend: https://equipos.gepro.com.ar/
+- API: https://equipos.gepro.com.ar/api/
+- Health Check: https://equipos.gepro.com.ar/api/health.php
+
+📁 Estructura en servidor:
+/domains/equipos.gepro.com.ar/public_html/
+├── index.html (frontend React)
+├── assets/ (CSS, JS compilados)
+├── .htaccess (configuración Apache)
+└── api/ (backend PHP)
+    ├── equipment.php
+    ├── projects.php
+    ├── cost-centers.php
+    ├── assignments.php
+    ├── maintenance.php
+    ├── health.php
+    ├── config/ (configuración BD)
+    ├── .htaccess (ruteo API)
+    └── uploads/ (imágenes equipos)
+
+✅ VENTAJAS DEL SUBDOMINIO:
+1. URLs más limpias (/api/ en lugar de /equipos/api/)
+2. Separación clara del dominio principal
+3. Mejor SEO y organización
+4. Mismo backend PHP compatible
+
+⚠️ IMPORTANTE:
+1. Configurar el subdominio en el panel de Hostinger
+2. Apuntar a /domains/equipos.gepro.com.ar/public_html/
+3. Usar la misma base de datos existente
+4. Crear tablas faltantes con create_missing_tables_gepro.sql
+5. Los permisos de uploads/ deben ser 755

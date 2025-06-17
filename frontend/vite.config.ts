@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/equipos/',  // Configurado para subdirectorio de GEPRO
+  base: '/',  // Configurado para subdominio de GEPRO
   build: {
     outDir: 'dist',
     assetsDir: 'static',
@@ -21,10 +21,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/equipos/api': {
+      '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/equipos\/api/, '/api')
+        rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     }
   }
