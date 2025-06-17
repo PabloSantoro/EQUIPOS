@@ -5,7 +5,12 @@ const API_BASE_URL = import.meta.env.PROD
 
 // Función helper para hacer requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+  // Para PHP, agregar .php al endpoint si no está presente
+  const phpEndpoint = import.meta.env.PROD && !endpoint.includes('.php') && !endpoint.includes('uploads/')
+    ? endpoint.replace(/^\/([^/]+)/, '/$1.php')
+    : endpoint;
+  
+  const url = `${API_BASE_URL}${phpEndpoint}`;
   
   const defaultOptions: RequestInit = {
     headers: {
@@ -25,7 +30,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     
     return await response.json();
   } catch (error) {
-    console.error(`API request failed for ${endpoint}:`, error);
+    console.error(`API request failed for ${phpEndpoint}:`, error);
     throw error;
   }
 };
@@ -68,7 +73,11 @@ export const equipmentAPI = {
   
   // Subir imagen de equipo
   uploadImage: (id: string, formData: FormData) => {
-    return fetch(`${API_BASE_URL}/equipment/${id}/upload-image`, {
+    const endpoint = import.meta.env.PROD 
+      ? `/equipment.php/${id}/upload-image`
+      : `/equipment/${id}/upload-image`;
+    
+    return fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       body: formData,
     }).then(response => {
@@ -161,9 +170,9 @@ export const assignmentsAPI = {
   }) => {
     const params = new URLSearchParams();
     if (filters?.estado) params.append('estado', filters.estado);
-    if (filters?.proyectoId) params.append('proyectoId', filters.proyectoId);
-    if (filters?.equipoId) params.append('equipoId', filters.equipoId);
-    if (filters?.centroCostoId) params.append('centroCostoId', filters.centroCostoId);
+    if (filters?.proyectoId) params.append('proyecto_id', filters.proyectoId);
+    if (filters?.equipoId) params.append('equipo_id', filters.equipoId);
+    if (filters?.centroCostoId) params.append('centro_costo_id', filters.centroCostoId);
     
     const query = params.toString();
     return apiRequest(`/assignments${query ? `?${query}` : ''}`);
@@ -200,7 +209,7 @@ export const maintenanceAPI = {
     const params = new URLSearchParams();
     if (filters?.status) params.append('status', filters.status);
     if (filters?.type) params.append('type', filters.type);
-    if (filters?.equipmentId) params.append('equipmentId', filters.equipmentId);
+    if (filters?.equipmentId) params.append('equipment_id', filters.equipmentId);
     
     const query = params.toString();
     return apiRequest(`/maintenance${query ? `?${query}` : ''}`);

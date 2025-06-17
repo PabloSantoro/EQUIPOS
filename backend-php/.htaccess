@@ -1,0 +1,53 @@
+# .htaccess para API PHP en subdirectorio /equipos/api - GEPRO
+RewriteEngine On
+
+# Configurar API endpoints
+RewriteRule ^equipment/?(.*)$ equipment.php [QSA,L]
+RewriteRule ^projects/?(.*)$ projects.php [QSA,L]
+RewriteRule ^cost-centers/?(.*)$ cost-centers.php [QSA,L]
+RewriteRule ^assignments/?(.*)$ assignments.php [QSA,L]
+RewriteRule ^maintenance/?(.*)$ maintenance.php [QSA,L]
+RewriteRule ^health/?$ health.php [QSA,L]
+
+# Servir uploads de imágenes
+RewriteRule ^uploads/(.*)$ uploads/$1 [QSA,L]
+
+# Configuración de compresión
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/javascript
+</IfModule>
+
+# Configuración CORS para API
+<IfModule mod_headers.c>
+    # Permitir CORS desde el dominio principal
+    Header always set Access-Control-Allow-Origin "https://gepro.com.ar"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header always set Access-Control-Allow-Credentials "true"
+    
+    # Cabeceras de seguridad
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options SAMEORIGIN
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Configuración de tipos MIME
+<IfModule mod_mime.c>
+    AddType application/json .json
+</IfModule>
+
+# Configuración de límites de archivo
+php_value upload_max_filesize 5M
+php_value post_max_size 5M
+php_value max_execution_time 30
+php_value max_input_time 30
+
+# Ocultar información del servidor
+ServerSignature Off
+
+# Configuración de errores
+php_flag display_errors Off
+php_flag log_errors On
