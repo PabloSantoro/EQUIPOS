@@ -1,0 +1,26 @@
+# .htaccess para API PHP
+RewriteEngine On
+
+# Configurar API endpoints
+RewriteRule ^equipment/?(.*)$ equipment.php [QSA,L]
+RewriteRule ^projects/?(.*)$ projects.php [QSA,L]
+RewriteRule ^cost-centers/?(.*)$ cost-centers.php [QSA,L]
+RewriteRule ^assignments/?(.*)$ assignments.php [QSA,L]
+RewriteRule ^maintenance/?(.*)$ maintenance.php [QSA,L]
+RewriteRule ^health/?$ health.php [QSA,L]
+
+# Servir uploads de imágenes
+RewriteRule ^uploads/(.*)$ uploads/$1 [QSA,L]
+
+# Configuración PHP
+php_value upload_max_filesize 5M
+php_value post_max_size 5M
+php_value max_execution_time 30
+php_value max_input_time 30
+
+# Ocultar información del servidor
+ServerSignature Off
+
+# Configuración de errores
+php_flag display_errors Off
+php_flag log_errors On

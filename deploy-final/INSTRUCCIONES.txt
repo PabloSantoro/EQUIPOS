@@ -1,0 +1,44 @@
+🎯 INSTRUCCIONES PARA SUBIR A equipos.gepro.com.ar
+
+📍 UBICACIÓN: /domains/equipos.gepro.com.ar/public_html/
+
+📂 COPIAR TODO EL CONTENIDO DE deploy-final/ A:
+/domains/equipos.gepro.com.ar/public_html/
+
+📋 ESTRUCTURA FINAL EN EL SERVIDOR:
+/domains/equipos.gepro.com.ar/public_html/
+├── index.html (archivo principal React)
+├── assets/ (CSS y JS compilados) 
+├── vite.svg (favicon)
+├── .htaccess (configuración Apache)
+└── api/ (backend PHP)
+    ├── equipment.php (API equipos)
+    ├── projects.php (API proyectos) 
+    ├── health.php (health check)
+    ├── config/ (configuración BD)
+    │   ├── database.php
+    │   └── cors.php
+    ├── uploads/ (imágenes)
+    │   └── equipment/
+    └── .htaccess (ruteo API)
+
+🗄️ BASE DE DATOS (YA CONFIGURADA):
+- Host: 62.72.62.1
+- DB: u302432817_gchkd  
+- User: u302432817_ILTEF
+- Pass: Puertas3489*
+
+✅ PERMISOS NECESARIOS:
+chmod 755 api/uploads/
+chmod 755 api/uploads/equipment/
+
+🌐 URLS FINALES:
+- Aplicación: https://equipos.gepro.com.ar/
+- Health Check: https://equipos.gepro.com.ar/api/health.php
+
+🔧 PASOS:
+1. Crear subdominio 'equipos' en cPanel
+2. Subir contenido de deploy-final/ 
+3. Configurar permisos uploads/
+4. Probar health check
+5. ¡Listo!
