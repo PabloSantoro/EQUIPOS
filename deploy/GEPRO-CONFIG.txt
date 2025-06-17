@@ -1,0 +1,32 @@
+🎯 CONFIGURACIÓN ESPECÍFICA PARA GEPRO.COM.AR
+
+📍 Ruta del servidor: /home/u302817/domains/gepro.com.ar/public_html/equipos
+
+🗄️ Base de datos:
+- Host: 62.72.62.1
+- Puerto: 3306  
+- Base de datos: u302432817_gchkd
+- Usuario: u302432817_ILTEF
+- Contraseña: Puertas3489*
+
+🌐 URLs de producción:
+- Frontend: https://gepro.com.ar/equipos
+- API: https://gepro.com.ar/equipos/api
+- Health Check: https://gepro.com.ar/equipos/api/health
+
+📁 Estructura en servidor:
+/home/u302817/domains/gepro.com.ar/public_html/equipos/
+├── index.html (frontend)
+├── static/ (assets)
+├── .htaccess (configuración)
+└── api/ (backend)
+    ├── server.js
+    ├── .env (con datos reales)
+    ├── routes/
+    ├── middleware/
+    └── uploads/
+
+⚠️ IMPORTANTE:
+1. Las tablas de la BD ya existen
+2. Solo crear tablas faltantes con create_missing_tables_gepro.sql
+3. Verificar primero con check_existing_tables.sql

@@ -1,5 +1,7 @@
 // Configuración base de la API
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.PROD 
+  ? '/equipos/api'  // En producción GEPRO, usar subdirectorio
+  : 'http://localhost:3001/api';  // En desarrollo, usar localhost
 
 // Función helper para hacer requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
