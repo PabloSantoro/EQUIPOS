@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEPRO - Sistema de Equipos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .status {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .apis-section {
+            margin-top: 40px;
+        }
+        
+        .apis-section h3 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #2196F3;
+            padding-bottom: 10px;
+        }
+        
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .api-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .api-card:hover {
+            border-color: #2196F3;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .api-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .api-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .api-description {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .api-url {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-top: 15px;
+            color: #2196F3;
+            border: 1px solid #e9ecef;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .migration-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 GEPRO</h1>
+            <p>Sistema de Gestión de Equipos</p>
+            <div class="migration-badge">✅ Migrado exitosamente de Node.js a PHP</div>
+        </div>
+        
+        <div class="status">
+            ✅ Backend PHP funcionando correctamente - Todas las APIs disponibles
+        </div>
+        
+        <div class="content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">51</div>
+                    <div class="stat-label">Equipos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Proyectos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Centros de Costo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">26</div>
+                    <div class="stat-label">Endpoints API</div>
+                </div>
+            </div>
+            
+            <div class="apis-section">
+                <h3>🔗 APIs Disponibles</h3>
+                <div class="api-grid">
+                    <a href="/api/health.php" class="api-card">
+                        <div class="api-icon">🔍</div>
+                        <div class="api-title">Health Check</div>
+                        <div class="api-description">Estado completo del sistema, base de datos y configuración</div>
+                        <div class="api-url">/api/health.php</div>
+                    </a>
+                    
+                    <a href="/api/equipment.php" class="api-card">
+                        <div class="api-icon">🚜</div>
+                        <div class="api-title">Equipos</div>
+                        <div class="api-description">CRUD completo de equipos con upload de imágenes y filtros</div>
+                        <div class="api-url">/api/equipment.php</div>
+                    </a>
+                    
+                    <a href="/api/projects.php" class="api-card">
+                        <div class="api-icon">📋</div>
+                        <div class="api-title">Proyectos</div>
+                        <div class="api-description">Gestión de proyectos internos y externos con costos</div>
+                        <div class="api-url">/api/projects.php</div>
+                    </a>
+                    
+                    <a href="/api/cost-centers.php" class="api-card">
+                        <div class="api-icon">💰</div>
+                        <div class="api-title">Centros de Costo</div>
+                        <div class="api-description">Administración de centros de costo y presupuestos</div>
+                        <div class="api-url">/api/cost-centers.php</div>
+                    </a>
+                    
+                    <a href="/api/assignments.php" class="api-card">
+                        <div class="api-icon">📝</div>
+                        <div class="api-title">Asignaciones</div>
+                        <div class="api-description">Asignaciones de equipos a proyectos con cálculo de costos</div>
+                        <div class="api-url">/api/assignments.php</div>
+                    </a>
+                    
+                    <a href="/api/assignments.php/stats/dashboard" class="api-card">
+                        <div class="api-icon">📊</div>
+                        <div class="api-title">Dashboard Stats</div>
+                        <div class="api-description">Estadísticas completas y métricas del sistema</div>
+                        <div class="api-url">/api/assignments.php/stats/dashboard</div>
+                    </a>
+                    
+                    <a href="/api/maintenance.php" class="api-card">
+                        <div class="api-icon">🔧</div>
+                        <div class="api-title">Mantenimientos</div>
+                        <div class="api-description">Gestión de mantenimientos preventivos y correctivos</div>
+                        <div class="api-url">/api/maintenance.php</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>GEPRO v1.0</strong> - Sistema migrado completamente de Node.js a PHP</p>
+            <p>Backend funcionando en PHP 8.2.28 con MySQL</p>
+            <p>Base de datos: <code>u302432817_gchkd</code> @ <code>62.72.62.1</code></p>
+        </div>
+    </div>
+</body>
+</html>
