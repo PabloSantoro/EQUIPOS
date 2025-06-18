@@ -1,0 +1,178 @@
+# .htaccess principal para GEPRO - Sistema completo migrado desde Node.js
+RewriteEngine On
+
+# === CONFIGURACIÓN DE SEGURIDAD ===
+# Equivalente a helmet.js de Node.js
+<IfModule mod_headers.c>
+    # CORS Headers (configurado en cors.php)
+    Header always set Access-Control-Allow-Origin "https://equipos.gepro.com.ar"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header always set Access-Control-Allow-Credentials "true"
+    
+    # Security Headers (equivalente a helmet.js)
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options SAMEORIGIN
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'"
+    
+    # Remove server signature (equivalente a serverSignature)
+    Header unset Server
+    Header unset X-Powered-By
+</IfModule>
+
+# === RATE LIMITING BÁSICO ===
+# Equivalente al rate limiting de Express (100 req/15min)
+<IfModule mod_evasive24.c>
+    DOSHashTableSize    8192
+    DOSPageCount        10
+    DOSPageInterval     1
+    DOSLockingPeriod    900
+</IfModule>
+
+# === RUTEO DE API ===
+# Equivalente al sistema de rutas de Express.js
+
+# Health Check
+RewriteRule ^api/health/?$ api/health.php [QSA,L]
+
+# Equipment API (con todas las sub-rutas)
+RewriteRule ^api/equipment/?$ api/equipment.php [QSA,L]
+RewriteRule ^api/equipment/available/assignments/?$ api/equipment.php [QSA,L]
+RewriteRule ^api/equipment/([^/]+)/?$ api/equipment.php [QSA,L]
+RewriteRule ^api/equipment/([^/]+)/upload-image/?$ api/equipment.php [QSA,L]
+RewriteRule ^api/equipment/([^/]+)/image/?$ api/equipment.php [QSA,L]
+
+# Projects API
+RewriteRule ^api/projects/?$ api/projects.php [QSA,L]
+RewriteRule ^api/projects/([^/]+)/?$ api/projects.php [QSA,L]
+
+# Cost Centers API
+RewriteRule ^api/cost-centers/?$ api/cost-centers.php [QSA,L]
+RewriteRule ^api/cost-centers/([^/]+)/?$ api/cost-centers.php [QSA,L]
+
+# Assignments API (incluyendo dashboard stats)
+RewriteRule ^api/assignments/?$ api/assignments.php [QSA,L]
+RewriteRule ^api/assignments/stats/dashboard/?$ api/assignments.php [QSA,L]
+RewriteRule ^api/assignments/([^/]+)/?$ api/assignments.php [QSA,L]
+
+# Maintenance API
+RewriteRule ^api/maintenance/?$ api/maintenance.php [QSA,L]
+RewriteRule ^api/maintenance/([^/]+)/?$ api/maintenance.php [QSA,L]
+
+# Servir uploads estáticos (equivalente a express.static)
+RewriteRule ^api/uploads/equipment/([^/]+)$ uploads/equipment/$1 [QSA,L]
+
+# === CONFIGURACIÓN DE ARCHIVOS ===
+# Equivalente a la configuración de multer
+
+# Limits de PHP (equivalente a los límites de Express)
+php_value upload_max_filesize 5M
+php_value post_max_size 5M
+php_value max_execution_time 30
+php_value max_input_time 30
+php_value memory_limit 128M
+
+# File upload security
+php_value file_uploads On
+php_value allow_url_fopen Off
+php_value allow_url_include Off
+
+# Error handling (equivalente al middleware de errores)
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_log "/tmp/gepro_php_errors.log"
+
+# === COMPRESIÓN ===
+# Equivalente a la compresión de Express
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# === CACHÉ ===
+# Equivalente a la configuración de caché de Express
+<IfModule mod_expires.c>
+    ExpiresActive on
+    
+    # Cache para uploads de imágenes (1 año)
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    
+    # No cache para API responses
+    ExpiresByType application/json "access plus 0 seconds"
+    
+    # Cache para assets estáticos
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+# Cache control headers
+<IfModule mod_headers.c>
+    # Cache para imágenes
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
+    # No cache para API
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# === PROTECCIÓN DE ARCHIVOS ===
+# Proteger archivos de configuración
+<Files "*.php">
+    # Solo permitir acceso a archivos de API específicos
+    <RequireAll>
+        Require all granted
+    </RequireAll>
+</Files>
+
+# Denegar acceso a archivos sensibles
+<FilesMatch "\.(env|log|conf|config)$">
+    Require all denied
+</FilesMatch>
+
+# Proteger directorio de configuración
+<Directory "config">
+    Require all denied
+</Directory>
+
+# === MANEJO DE ERRORES ===
+# Equivalente al middleware de manejo de errores de Express
+ErrorDocument 404 /api/error.php?code=404
+ErrorDocument 500 /api/error.php?code=500
+
+# === LOGS DE ACCESO ===
+# Equivalente al middleware de logging de Express
+<IfModule mod_log_config.c>
+    LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" %D" gepro_format
+    CustomLog /tmp/gepro_access.log gepro_format
+</IfModule>
+
+# === OPTIMIZACIONES ===
+# Deshabilitar server signature
+ServerSignature Off
+
+# Optimizar performance
+<IfModule mod_fcgid.c>
+    FcgidMaxRequestLen 5242880
+    FcgidIOTimeout 120
+    FcgidConnectTimeout 120
+    FcgidBusyTimeout 120
+</IfModule>

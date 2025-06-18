@@ -1,12 +1,12 @@
 // Configuración base de la API
 const API_BASE_URL = import.meta.env.PROD 
-  ? '/api'  // En producción GEPRO subdominio, usar /api
-  : 'http://localhost:3001/api';  // En desarrollo, usar localhost
+  ? 'https://equipos.gepro.com.ar/api'  // En producción GEPRO subdominio, usar .php
+  : 'http://localhost/proyecto-equipos/backend-php/api';  // En desarrollo, usar PHP local
 
 // Función helper para hacer requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   // Para PHP, agregar .php al endpoint si no está presente
-  const phpEndpoint = import.meta.env.PROD && !endpoint.includes('.php') && !endpoint.includes('uploads/')
+  const phpEndpoint = !endpoint.includes('.php') && !endpoint.includes('uploads/')
     ? endpoint.replace(/^\/([^/]+)/, '/$1.php')
     : endpoint;
   

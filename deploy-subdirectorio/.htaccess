@@ -1,0 +1,16 @@
+# .htaccess para React SPA en subdirectorio /equipos
+RewriteEngine On
+
+# Manejar las rutas de la API hacia PHP
+RewriteRule ^api/equipment(.*)$ api/equipment.php$1 [QSA,L]
+RewriteRule ^api/projects(.*)$ api/projects.php$1 [QSA,L] 
+RewriteRule ^api/health(.*)$ api/health.php$1 [QSA,L]
+
+# Manejar uploads de imágenes
+RewriteRule ^api/uploads/(.*)$ api/uploads/$1 [QSA,L]
+
+# Para todas las otras rutas del frontend React, servir index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/equipos/api/
+RewriteRule ^(.*)$ /equipos/index.html [L]
