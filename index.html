@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personaje articulado interactivo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f2ed;
+      --panel: #ffffff;
+      --text: #2f2a25;
+      --accent: #c48a5a;
+      --accent-dark: #8a5a35;
+      --muted: #7a6f66;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) 1fr;
+      min-height: 100vh;
+    }
+
+    .panel {
+      background: var(--panel);
+      padding: 24px;
+      box-shadow: 6px 0 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      margin: 0;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      background: rgba(196, 138, 90, 0.12);
+      color: var(--accent-dark);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .legend {
+      display: grid;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid rgba(138, 90, 53, 0.7);
+    }
+
+    .canvas-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    button {
+      border: none;
+      background: var(--accent);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    @media (max-width: 900px) {
+      body {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      .panel {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="panel">
+    <span class="tag">Sistema articulado</span>
+    <h1>Personaje interactivo tipo maniquí</h1>
+    <p>
+      Arrastra cada articulación para ajustar la pose. El torso se mueve completo
+      y el resto de las piezas rotan desde su unión para mantener proporciones.
+    </p>
+    <div class="legend">
+      <span><span class="dot"></span> Articulaciones seleccionables</span>
+      <span><strong>Consejo:</strong> arrastra la pelvis para mover todo el cuerpo.</span>
+    </div>
+    <button id="resetPose" type="button">Resetear pose</button>
+    <p class="hint">Diseñado para replicar un maniquí de madera articulado.</p>
+  </aside>
+  <main class="canvas-wrap">
+    <canvas id="stage"></canvas>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("stage");
+    const ctx = canvas.getContext("2d");
+    const resetButton = document.getElementById("resetPose");
+
+    const state = {
+      width: 0,
+      height: 0,
+      dragging: false,
+      activeJoint: null,
+      pointer: { x: 0, y: 0 },
+    };
+
+    const colors = {
+      limb: "#cfa174",
+      joint: "#c48a5a",
+      jointStroke: "#8a5a35",
+      shadow: "rgba(0, 0, 0, 0.15)",
+    };
+
+    const joints = {
+      pelvis: { name: "pelvis", parent: null, length: 0, angle: 0, x: 0, y: 0 },
+      spine: { name: "spine", parent: "pelvis", length: 90, angle: -Math.PI / 2 },
+      chest: { name: "chest", parent: "spine", length: 60, angle: -Math.PI / 2 },
+      head: { name: "head", parent: "chest", length: 50, angle: -Math.PI / 2 },
+      shoulderL: { name: "shoulderL", parent: "chest", length: 35, angle: -Math.PI },
+      elbowL: { name: "elbowL", parent: "shoulderL", length: 60, angle: -Math.PI / 1.9 },
+      handL: { name: "handL", parent: "elbowL", length: 45, angle: -Math.PI / 1.8 },
+      shoulderR: { name: "shoulderR", parent: "chest", length: 35, angle: 0 },
+      elbowR: { name: "elbowR", parent: "shoulderR", length: 60, angle: Math.PI / 1.9 },
+      handR: { name: "handR", parent: "elbowR", length: 45, angle: Math.PI / 1.8 },
+      hipL: { name: "hipL", parent: "pelvis", length: 40, angle: -Math.PI / 2.6 },
+      kneeL: { name: "kneeL", parent: "hipL", length: 80, angle: Math.PI / 1.2 },
+      footL: { name: "footL", parent: "kneeL", length: 55, angle: Math.PI / 1.1 },
+      hipR: { name: "hipR", parent: "pelvis", length: 40, angle: -Math.PI / 2.6 },
+      kneeR: { name: "kneeR", parent: "hipR", length: 80, angle: Math.PI / 1.2 },
+      footR: { name: "footR", parent: "kneeR", length: 55, angle: Math.PI / 1.1 },
+    };
+
+    const jointOrder = Object.keys(joints);
+
+    const initialAngles = jointOrder.reduce((acc, key) => {
+      acc[key] = joints[key].angle;
+      return acc;
+    }, {});
+
+    function resize() {
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      state.width = canvas.width;
+      state.height = canvas.height;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      centerPelvis();
+      updatePositions();
+    }
+
+    function centerPelvis() {
+      joints.pelvis.x = canvas.clientWidth / 2;
+      joints.pelvis.y = canvas.clientHeight * 0.62;
+    }
+
+    function updatePositions() {
+      jointOrder.forEach((key) => {
+        const joint = joints[key];
+        if (!joint.parent) {
+          return;
+        }
+        const parent = joints[joint.parent];
+        joint.x = parent.x + Math.cos(joint.angle) * joint.length;
+        joint.y = parent.y + Math.sin(joint.angle) * joint.length;
+      });
+    }
+
+    function drawSegment(a, b, width) {
+      ctx.lineWidth = width;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = colors.limb;
+      ctx.shadowColor = colors.shadow;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    function drawJoint(joint, radius) {
+      ctx.fillStyle = colors.joint;
+      ctx.strokeStyle = colors.jointStroke;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(joint.x, joint.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      drawSegment(joints.pelvis, joints.spine, 16);
+      drawSegment(joints.spine, joints.chest, 18);
+      drawSegment(joints.chest, joints.head, 20);
+      drawSegment(joints.chest, joints.shoulderL, 12);
+      drawSegment(joints.shoulderL, joints.elbowL, 12);
+      drawSegment(joints.elbowL, joints.handL, 10);
+      drawSegment(joints.chest, joints.shoulderR, 12);
+      drawSegment(joints.shoulderR, joints.elbowR, 12);
+      drawSegment(joints.elbowR, joints.handR, 10);
+      drawSegment(joints.pelvis, joints.hipL, 14);
+      drawSegment(joints.hipL, joints.kneeL, 14);
+      drawSegment(joints.kneeL, joints.footL, 12);
+      drawSegment(joints.pelvis, joints.hipR, 14);
+      drawSegment(joints.hipR, joints.kneeR, 14);
+      drawSegment(joints.kneeR, joints.footR, 12);
+
+      jointOrder.forEach((key) => {
+        const joint = joints[key];
+        drawJoint(joint, key === "pelvis" ? 12 : 9);
+      });
+
+      ctx.restore();
+      requestAnimationFrame(render);
+    }
+
+    function getPointerPosition(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+    }
+
+    function findClosestJoint(position) {
+      let closest = null;
+      let minDistance = Infinity;
+      jointOrder.forEach((key) => {
+        const joint = joints[key];
+        const dx = joint.x - position.x;
+        const dy = joint.y - position.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance < 18 && distance < minDistance) {
+          closest = joint;
+          minDistance = distance;
+        }
+      });
+      return closest;
+    }
+
+    function onPointerDown(event) {
+      state.pointer = getPointerPosition(event);
+      state.activeJoint = findClosestJoint(state.pointer);
+      state.dragging = Boolean(state.activeJoint);
+    }
+
+    function onPointerMove(event) {
+      if (!state.dragging || !state.activeJoint) {
+        return;
+      }
+
+      state.pointer = getPointerPosition(event);
+
+      if (state.activeJoint.name === "pelvis") {
+        state.activeJoint.x = state.pointer.x;
+        state.activeJoint.y = state.pointer.y;
+        updatePositions();
+        return;
+      }
+
+      const parent = joints[state.activeJoint.parent];
+      const angle = Math.atan2(state.pointer.y - parent.y, state.pointer.x - parent.x);
+      state.activeJoint.angle = angle;
+      updatePositions();
+    }
+
+    function onPointerUp() {
+      state.dragging = false;
+      state.activeJoint = null;
+    }
+
+    function resetPose() {
+      jointOrder.forEach((key) => {
+        joints[key].angle = initialAngles[key];
+      });
+      centerPelvis();
+      updatePositions();
+    }
+
+    window.addEventListener("resize", () => {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      resize();
+    });
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    resetButton.addEventListener("click", resetPose);
+
+    resize();
+    render();
+  </script>
+</body>
+</html>
